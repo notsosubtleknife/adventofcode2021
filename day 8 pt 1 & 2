@@ -1,0 +1,35 @@
+
+lines = [l.strip().split(" | ") for l in open("Input.txt")]
+print( sum(len(d) in (2,3,4,7) for x,y in lines for d in y.split()) ) # part 1
+
+def decode_digits(x):
+  digs = x.split()
+  d1 = set([d for d in digs if len(d)==2][0])  #   A
+  d4 = set([d for d in digs if len(d)==4][0])  #  B C
+  d7 = set([d for d in digs if len(d)==3][0])  #   D
+  d8 = set([d for d in digs if len(d)==7][0])  #  E F
+  d235 = [set(d) for d in digs if len(d)==5]   #   G
+  d690 = [set(d) for d in digs if len(d)==6]
+  sA = d7 - d1 # s - segments
+  sADG = d235[0].intersection(d235[1]).intersection(d235[2])
+  sD = sADG.intersection(d4)
+  sB = d4 - d1 - sD
+  sG = sADG - d4 - d7
+  sF = [d.intersection(d1) for d in d690 if len(d.intersection(d1))==1][0]
+  sC = d1 - sF
+  sE = set('abcdefg')-sA-sB-sC-sD-sF-sG
+  d2 = sADG.union(sC).union(sE)
+  d3 = sADG.union(sC).union(sF)
+  d5 = sADG.union(sB).union(sF)
+  d0 = d8 - sD
+  d6 = d8 - sC
+  d9 = d8 - sE
+  return d0,d1,d2,d3,d4,d5,d6,d7,d8,d9
+
+def decode_numbers(y,digs,r=0):
+  for n in y.split(): r = 10*r + digs.index(set(n))
+  return r
+
+def decode(line): return decode_numbers(line[1],decode_digits(line[0]))
+
+print( sum(decode(line) for line in lines) ) # part 2
